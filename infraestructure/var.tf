@@ -18,7 +18,7 @@ variable "dir_type" {
   default     = "SimpleAD"
 }
 
-variable "az_zone" {
+variable "az_names" {
   type        = list(string)
   default     = [""]
 }
