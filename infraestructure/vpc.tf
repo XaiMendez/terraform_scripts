@@ -67,3 +67,81 @@ resource "aws_route_table" "COURSE_PUBLIC_ROUTE" {
 	local.default_tags,
 	)
 }
+
+resource "aws_route_table" "COURSE_PRIVATE_ROUTE" {
+	vpc_id = aws.vpc_COURSE_VPC.id
+	route {
+		cidr_block = "0.0.0.0/0",
+		nat_gateway_id = aws.nat_gateway.COURSE_NAT.id
+	}
+	tags = merge({
+		"Name" = "${local.name_prefix}-PRIVATE-RT"
+	},
+	local.default_tags,
+	)
+}
+
+resource "aws_vpc_endpoint" "COURSE_S3_ENDPOINT" {
+	vpc_id = aws.vpc_COURSE_VPC.id
+	service_name = "com.amazonws.${var.aws.region}.s3"
+	route_table_ids = [aws_route_table.COURSE_PUBLIC_ROUTE.id, aws_route_table.COURSE_PRIVATE_ROUTE.id]
+}
+
+resource "aws_route_table_association" "PUBLIC_ASSO" {
+	route_table_id = aws_route_table.COURSE_PUBLIC_ROUTE.id
+	subnet_id = aws.subnet.COURSE_PUBLIC_SUBNET.id
+}
+
+resource "aws_route_table_association" "PRIVATE_ASSO" {
+	route_table_id = aws_route_table.COURSE_PRIVATE_ROUTE.id
+	subnet_id = aws.subnet.COURSE_PUBLIC_SUBNET.id
+}
+
+# Restringir puertos, acceso de infraesructura a traves de la red
+resource "aws_network_acl" "COURSE_NACL" {
+	vpc_id = aws.vpc_COURSE_VPC.id
+	subnet_ids = [aws_subnet.COURSE_PUBLIC_SUBNET.id, aws_subnet.COURSE_PRIVATE_SUBNET.id]
+
+	ingress{
+		protocol = "tcp",
+		rule_no = 110
+		action = "deny"
+		cidr = "0.0.0.0/0"
+		from_port = 23
+		to_port = 23
+	}
+
+	ingress{
+		protocol = "tcp",
+		rule_no = 32766
+		action = "allow"
+		cidr = "0.0.0.0/0"
+		from_port = 0
+		to_port = 0
+	}
+
+	egress{
+		protocol = "tcp",
+		rule_no = 110
+		action = "deny"
+		cidr = "0.0.0.0/0"
+		from_port = 23
+		to_port = 23
+	}
+
+	egress{
+		protocol = "tcp",
+		rule_no = 32766
+		action = "allow"
+		cidr = "0.0.0.0/0"
+		from_port = 0
+		to_port = 0
+	}
+
+	tags = merge({
+		"Name" = "${local.name_prefix}-NACL"
+	},
+	local.default_tags,
+}
+
+
