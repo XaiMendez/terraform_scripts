@@ -142,6 +142,7 @@ resource "aws_network_acl" "COURSE_NACL" {
 		"Name" = "${local.name_prefix}-NACL"
 	},
 	local.default_tags,
+	)
 }
 
 
@@ -175,6 +176,7 @@ resource "aws_security_group" "APP_ALB_SG" {
 		"Name" = "${local.name_prefix}-ALB-SG"
 	},
 	local.default_tags,
+	)
 
 }
 
@@ -209,6 +211,7 @@ resource "aws_security_group" "APP_SG" {
 		"Name" = "${local.name_prefix}-APP-SG"
 	},
 	local.default_tags,
+	)
 
 }
 
