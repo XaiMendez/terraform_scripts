@@ -19,7 +19,7 @@ resource "aws_internet_gateway" "COURSE_IGW" {
 
 resource "aws_subnet" "COURSE_PUBLIC_SUBNET {
 	map_public_ip_on_launch = true
-	avilability_zone = element(var.az_name, 0)
+	availability_zone = element(var.az_name, 0)
 	vpc_id = aws_vpc_COURSE_VPC.id
 	cidr_block = var.element(var.subnet_cidr_blocks, 0)
 	tags = merge({
@@ -32,7 +32,7 @@ resource "aws_subnet" "COURSE_PUBLIC_SUBNET {
 
 resource "aws_subnet" "COURSE_PRIVATE_SUBNET {
 	map_public_ip_on_launch = false
-	avilability_zone = element(var.az_name, 1)
+	availability_zone = element(var.az_name, 1)
 	vpc_id = aws_vpc_COURSE_VPC.id
 	cidr_block = var.element(var.subnet_cidr_blocks, 1)
 	tags = merge({
