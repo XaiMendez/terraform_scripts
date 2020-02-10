@@ -103,7 +103,7 @@ resource "aws_network_acl" "COURSE_NACL" {
 	subnet_ids = [aws_subnet.COURSE_PUBLIC_SUBNET.id, aws_subnet.COURSE_PRIVATE_SUBNET.id]
 
 	ingress{
-		protocol = "tcp",
+		protocol = "tcp"
 		rule_no = 110
 		action = "deny"
 		cidr = "0.0.0.0/0"
@@ -112,7 +112,7 @@ resource "aws_network_acl" "COURSE_NACL" {
 	}
 
 	ingress{
-		protocol = "tcp",
+		protocol = "tcp"
 		rule_no = 32766
 		action = "allow"
 		cidr = "0.0.0.0/0"
@@ -121,7 +121,7 @@ resource "aws_network_acl" "COURSE_NACL" {
 	}
 
 	egress{
-		protocol = "tcp",
+		protocol = "tcp"
 		rule_no = 110
 		action = "deny"
 		cidr = "0.0.0.0/0"
@@ -130,7 +130,7 @@ resource "aws_network_acl" "COURSE_NACL" {
 	}
 
 	egress{
-		protocol = "tcp",
+		protocol = "tcp"
 		rule_no = 32766
 		action = "allow"
 		cidr = "0.0.0.0/0"
@@ -144,4 +144,71 @@ resource "aws_network_acl" "COURSE_NACL" {
 	local.default_tags,
 }
 
+
+# security group
+resource "aws_security_group" "APP_ALB_SG" {
+	vpc_id = aws.vpc_COURSE_VPC.id
+	name = "${local.name_prefix}-ALB-SG"
+
+	ingress{
+		protocol = "tcp"
+		from_port = 80
+		to_port = 80
+		security_groups = "aws_security_group.APP_ALB_SG.id"
+	}
+
+	ingress{
+		protocol = "tcp"
+		from_port = 443
+		to_port = 443
+		security_groups = "aws_security_group.APP_ALB_SG.id"
+	}
+
+	egress{
+		from_port = 0
+		to_port = 0
+		protocol = "-1"
+		cidr_blocks = ["0.0.0.0/0"]
+	}
+
+	tags = merge({
+		"Name" = "${local.name_prefix}-ALB-SG"
+	},
+	local.default_tags,
+
+}
+
+
+# security group
+resource "aws_security_group" "APP_SG" {
+	vpc_id = aws.vpc_COURSE_VPC.id
+	name = "${local.name_prefix}-APP-SG"
+
+	ingress{
+		protocol = "tcp"
+		from_port = 22
+		to_port = 22
+		cidr_blocks = [aws_vpc.COURSE_VPC.cidr_block]
+	}
+
+	ingress{
+		protocol = "tcp"
+		from_port = 3389
+		to_port = 3389
+		cidr_blocks = [aws_vpc.COURSE_VPC.cidr_block]
+	}
+
+	egress{
+		from_port = 0
+		to_port = 0
+		protocol = "-1"
+		cidr_blocks = ["0.0.0.0/0"]
+	}
+
+	tags = merge({
+		"Name" = "${local.name_prefix}-APP-SG"
+	},
+	local.default_tags,
+
+}
 
