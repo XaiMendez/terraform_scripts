@@ -23,6 +23,7 @@ resource "aws_instance" "jumpbox" {
 	associate_public_ip_address = true
 	disable_api_termination = false
 	ami = data.aws_ami.windows2016.id
+	instance_type = var.instance_type
 	#user_data = ""
 	key_name = aws_key_pair.generated_key.key_name
 	iam_instance_profile = aws_iam_instance_profile.app_isntance_profile.name
