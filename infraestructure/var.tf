@@ -34,36 +34,36 @@ variable "instance_type" {
 variable "subnet_cidr_blocks" {
   type        = list(string)
   default     = [""]
-
+}
 
 variable "domain_name" {
-
+  #type        = string
 }
 
 variable "allocated_storage" {
-
+  #type        = string
 }
 
 variable "engine_name" {
-
+  #type        = string
 }
 
 variable "engine_version" {
-
+  #type        = string
 }
 
 variable "db_instance_type" {
-
+  #type        = string
 }
 
 variable "db_name" {
-
+  #type        = string
 }
 
 variable "username" {
-
+  #type        = string
 }
 
 variable "password" {
-
+  #type        = string
 }

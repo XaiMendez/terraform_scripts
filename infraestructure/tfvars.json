@@ -12,7 +12,7 @@
 	"allocated_storage": "20",
 	"engine_name": "postgres",
 	"engine_version":"10.6",
-	"db_instance_type: "db.t2.small",
+	"db_instance_type": "db.t2.small",
 	"db_name": "sample_db",
 	"username": "username_db",
 	"password": "course123"
