@@ -11,7 +11,7 @@ resource "aws_lb" "app_alb" {
 	load_balancer_type = "application"
 	idle_timeout = 600
 	security_groups = [aws_security_group.APP_ALB_SG.id]
-	subnet = [aws_subnet.COURSE_PUBLIC_SUBNET.id, aws_subnet.COURSE_PRIVATE_SUBNET.id]
+	subnets = [aws_subnet.COURSE_PUBLIC_SUBNET.id, aws_subnet.COURSE_PRIVATE_SUBNET.id]
 	enable_deletion_protection = false
 
 	tags = merge({
@@ -42,7 +42,7 @@ resource "aws_lb_target_group" "APP_TG" {
 
 	health_check {
 		interval = 30
-		healthy = 2
+		healthy_thresholds = 2
 		unhealthy_thresholds = 2
 		timeout = 5
 		matcher = "200"
