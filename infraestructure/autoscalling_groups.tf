@@ -1,78 +1,63 @@
-#auto scalling group
-# aws ami
-# private ip
-# launch configuration
-# instance profile
-# key pairs
-# target group attach
-
-
-# private key
 resource "tls_private_key" "app_private_key" {
-	
-	algorithm = "RSA"
-	rsa_bits = 4096
+  algorithm = "RSA"
+  rsa_bits  = 4096
 }
 
-# key pair for instances
 resource "aws_key_pair" "generated_key" {
-	key_name = "APP-KEY"
-	public_key = tls_private_key.app_private_key.public_key_opessh
+  key_name   = "APP-KEY"
+  public_key = tls_private_key.app_private_key.public_key_openssh
 }
 
-
-# get most recent image
 data "aws_ami" "ubuntu" {
-	most_recent = true
-	owners = ["amazon"]
+  most_recent = true
 
-	filter{
-		name = "name"
-		value = ["ubuntu-bionic-18.04-amd64-server.*"]
-	}
+  owners = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["ubuntu-bionic-18.04-amd64-server-*"]
+  }
 }
 
-
-# launch configuration fot image
 resource "aws_launch_configuration" "app_launch_configuration" {
-	name_prefix = "${local.name_prefix}-APP-LC"
-	image_id = data.aws_ami.ubuntu.image_id
-	instance_type = var.instance_type
-	#user_data = ""
-	associate_public_ip_address = false
-	iam_instance_profile = aws_iam_instance_profile.app_instance_profile.name
-	security_groups = ["aws_security_group.APP_SG.id"]
-	key_name = aws_key_pair.generated_key.key_name
+  name_prefix   = "${local.name_prefix}-APP-LC"
+  image_id      = data.aws_ami.ubuntu.id
+  instance_type = var.instance_type
 
-	root_block_device{
-		volume_size = "60"
-		volume_type = "gp2"
-		delete_on_termination = true
-	}
+  # user_data                   = ""
+  associate_public_ip_address = false
+  iam_instance_profile        = aws_iam_instance_profile.app_instance_profile.name
+  security_groups             = [aws_security_group.APP_SG.id]
+  key_name                    = aws_key_pair.generated_key.key_name
 
-	lifecycle{
-		create_before_destroy = true
-	}
+  root_block_device {
+    volume_size           = "60"
+    volume_type           = "gp2"
+    delete_on_termination = true
+  }
 
-
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
+resource "aws_autoscaling_group" "app_asg" {
+  name_prefix          = "${local.name_prefix}-APP"
+  launch_configuration = aws_launch_configuration.app_launch_configuration.id
+  vpc_zone_identifier  = [aws_subnet.DEV_01_PRIVATE_SUBNET.id, aws_subnet.DEV_01_PUBLIC_SUBNET.id]
+  min_size             = "2"
+  max_size             = "4"
+  health_check_type    = "EC2"
 
-resource "aws_autoscalling_group" "app_asg" {
-	name_prefix = "${local.name_prefix}-APP"
-	launch_configuration = aws_launh_configuration.app_launch_configuration.id
-	vpz_zone_identifier = [aws_subnet.COURSE_PUBLIC_SUNET.id, aws_subnet.COURSE_PRIVATE_SUNET.id]
-	min_size = "2"
-	max_size = "4"
-	health_check_type = "EC2"
-	lifecycle {
-		create_before_destroy = true
-	}
+  lifecycle {
+    create_before_destroy = true
+  }
 
-	tag = local.asg_default_tags
+  tags = local.asg_default_tags
 }
 
-resource "aws_autoscalling_attachment" "asg_attachment"{
-	autoscalling_group_name = aws_autocalling_group.app_asg.name
-	alb_target_group_arn = aws_lb_target_group.APP_TG.arn
+resource "aws_autoscaling_attachment" "asg_attachment" {
+  autoscaling_group_name = aws_autoscaling_group.app_asg.name
+  alb_target_group_arn   = aws_lb_target_group.APP_TG.arn
+  #depends_on = [aws_autoscaling_group.app_asg]  =>use when dependency not visible to terraform
 }

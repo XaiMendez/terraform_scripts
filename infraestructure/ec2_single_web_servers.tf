@@ -7,9 +7,9 @@ resource "aws_instance" "windows_web_server" {
 	instance_type = var.instance_type
 	#user_data = ""
 	key_name = aws_key_pair.generated_key.key_name
-	iam_instance_profile = aws_iam_instance_profile.app_isntance_profile.name
+	iam_instance_profile = aws_iam_instance_profile.app_instance_profile.name
 	vpc_security_group_ids = [aws_security_group.APP_SG.id]
-	subnet_id = aws_subnet.COURSE_PRIVATE_SUBNET.id
+	subnet_id = aws_subnet.DEV_01_PRIVATE_SUBNET.id
 	instance_initiated_shutdown_behavior = "stop"
 
 	tags = merge({
@@ -27,9 +27,9 @@ resource "aws_instance" "ubuntu_web_server" {
 	instance_type = var.instance_type
 	#user_data = ""
 	key_name = aws_key_pair.generated_key.key_name
-	iam_instance_profile = aws_iam_instance_profile.app_isntance_profile.name
+	iam_instance_profile = aws_iam_instance_profile.app_instance_profile.name
 	vpc_security_group_ids = [aws_security_group.APP_SG.id]
-	subnet_id = aws_subnet.COURSE_PRIVATE_SUBNET.id
+	subnet_id = aws_subnet.DEV_01_PRIVATE_SUBNET.id
 	instance_initiated_shutdown_behavior = "stop"
 
 	tags = merge({
@@ -40,6 +40,6 @@ resource "aws_instance" "ubuntu_web_server" {
 }
 
 resource "aws_s3_bucket" "backups_bucket"{
-	bucket = "infra-course-backups007"
+	bucket = "infra-DEV_01-backups007"
 	acl = "private"
 }

@@ -11,7 +11,7 @@ resource "aws_lb" "app_alb" {
 	load_balancer_type = "application"
 	idle_timeout = 600
 	security_groups = [aws_security_group.APP_ALB_SG.id]
-	subnets = [aws_subnet.COURSE_PUBLIC_SUBNET.id, aws_subnet.COURSE_PRIVATE_SUBNET.id]
+	subnets = [aws_subnet.DEV_01_PUBLIC_SUBNET.id, aws_subnet.DEV_01_PRIVATE_SUBNET.id]
 	enable_deletion_protection = false
 
 	tags = merge({
@@ -22,36 +22,36 @@ resource "aws_lb" "app_alb" {
 }
 
 resource "aws_lb_target_group" "APP_TG" {
-	name = "${local.prefix_name}-APP-TG"
+  name        = "${local.name_prefix}-APP-TG"
+  port        = "80"
+  protocol    = "HTTP"
+  vpc_id      = aws_vpc.DEV_01_VPC.id
+  target_type = "instance"
+  tags = merge(
+    {
+      "Name" = "${local.name_prefix}-APP-LB-TG"
+    },
+    local.default_tags,
+  )
 
-	port = "80"
-	protocol = "HTTP"
-	vpc_id = aws_vpc.COURSE_VPC.id
-	target_type = "instance"
+  lifecycle {
+    create_before_destroy = true
 
-		tags = merge({
-		"Name" = "${local.name_prefix}-APP-LB-TG"
-	},
-		local.default_tags,
-	)
+    ignore_changes = [name]
+  }
 
-	lifecycle{
-		create_before_destroy = true
-		ignore_changes = [name]
-	}
-
-	health_check {
-		interval = 30
-		healthy_thresholds = 2
-		unhealthy_thresholds = 2
-		timeout = 5
-		matcher = "200"
-	}
+  health_check {
+    interval            = 30
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    timeout             = 5
+    matcher             = "200"
+  }
 }
 
 
 resource "aws_lb_listener" "APP_http_listener" {
-	load_balance_arn = aws_lb.app_alb.arn
+	load_balancer_arn = aws_lb.app_alb.arn
 	port = 80
 	protocol = "HTTP"
 
