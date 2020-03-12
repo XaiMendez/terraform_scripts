@@ -1,6 +1,6 @@
-# security groups
+# simple_security_group_ssh.tf
 
-resource "aws_security_group" "sg_main_1" {
+resource "aws_security_group" "sg_main_ssh" {
   name        = "sg_allow_ping_ssh"
   description = "Allow ping ssh"
   vpc_id      = "${aws_vpc.vpc_main_1.id}"
@@ -30,7 +30,7 @@ resource "aws_security_group" "sg_main_1" {
   }
 
   tags = {
-    Name = "sg_main_1"
+    Name = "sg_main_ssh"
   }
 
 }
