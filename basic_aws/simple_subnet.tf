@@ -1,8 +1,4 @@
-# subnet
-# az = availability zone
-# VPC
-#   -subnet az
-#   -subnet az
+# simple_subnet.vpc
 
 resource "aws_subnet" "subnet_main_1" {
   vpc_id = "${aws_vpc.vpc_main_1.id}"
@@ -11,7 +7,7 @@ resource "aws_subnet" "subnet_main_1" {
   availability_zone = "us-east-2a"
 
   tags = {
-    Name = "subnet_main_1"
+    Name = "subnet_main_1 us-east-2a"
   }
 
 }
@@ -23,7 +19,7 @@ resource "aws_subnet" "subnet_main_2" {
   availability_zone = "us-east-2b"
 
   tags = {
-    Name = "subnet_main_2"
+    Name = "subnet_main_2 us-east-2b"
   }
 
 }
@@ -35,14 +31,11 @@ resource "aws_subnet" "subnet_main_3" {
   availability_zone = "us-east-2c"
 
   tags = {
-    Name = "subnet_main_3"
+    Name = "subnet_main_3 us-east-2c"
   }
 
 }
 
-
-# IG to VPC, 
-# subnet a route table
 
 # internet gateway
 resource "aws_internet_gateway" "ig_main_1" {
@@ -65,7 +58,7 @@ resource "aws_route_table" "rt_main_1" {
 }
 
 
-# Associations
+# associations
 resource "aws_route_table_association" "rta_subnet_main_1" {
   subnet_id = "${aws_subnet.subnet_main_1.id}"
   route_table_id = "${aws_route_table.rt_main_1.id}" 
